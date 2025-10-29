@@ -62,7 +62,10 @@ const Navigation = () => {
             <SiThemoviedatabase color="black" size="40px" />
           </NavLink>
 
-          <nav className="hidden md:flex gap-3 items-center" aria-label="Primary Navigation">
+          <nav
+            className="hidden md:flex gap-3 items-center"
+            aria-label="Primary Navigation"
+          >
             {navLinks.map(({ path, name }) => (
               <NavLink
                 key={path}
@@ -89,8 +92,8 @@ const Navigation = () => {
                 <div className="avatar avatar-placeholder">
                   <div className="bg-pink-800 text-white font-bold w-10 rounded-full">
                     <span className="text-xs">
-                      {userInfo.firstname.slice(0, 1)}
-                      {userInfo.lastname.slice(0, 1)}
+                      {userInfo.firstname.slice(0, 1).toUpperCase()}
+                      {userInfo.lastname.slice(0, 1).toUpperCase()}
                     </span>
                   </div>
                 </div>
@@ -138,19 +141,30 @@ const Navigation = () => {
                 aria-label="User Menu"
                 className="absolute right-0 mt-2 w-[8rem] bg-black text-center text-gray-200 rounded shadow-md transition-all duration-200 ease-in-out z-20"
               >
-                <p className="pb-2 font-semibold">Hello, {userInfo.firstname}</p>
+                <p className="pb-2 font-semibold">
+                  Hello, {userInfo.firstname}
+                </p>
                 <li role="menuitem">
-                  <NavLink to="/profile" className="block px-2 py-1 hover:border-b border-white">
+                  <NavLink
+                    to="/profile"
+                    className="block px-2 py-1 hover:border-b border-white"
+                  >
                     Profile
                   </NavLink>
                 </li>
                 <li role="menuitem">
-                  <NavLink to="/favourite" className="block px-2 py-1 hover:border-b border-white">
+                  <NavLink
+                    to="/favourite"
+                    className="block px-2 py-1 hover:border-b border-white"
+                  >
                     Favourite
                   </NavLink>
                 </li>
                 <li role="menuitem">
-                  <NavLink to="/watchlist" className="block px-2 py-1 hover:border-b border-white">
+                  <NavLink
+                    to="/watchlist"
+                    className="block px-2 py-1 hover:border-b border-white"
+                  >
                     Watchlist
                   </NavLink>
                 </li>
@@ -183,7 +197,9 @@ const Navigation = () => {
         title="Confirm Logout"
         aria-label="Logout Confirmation Modal"
       >
-        <p className="font-bold text-black">Are you sure you want to log out?</p>
+        <p className="font-bold text-black">
+          Are you sure you want to log out?
+        </p>
         <div className="flex justify-end items-center gap-4 mt-4">
           <button
             className="btn text-black px-2 hover:border"

@@ -26,7 +26,7 @@ const createToken = (res, userId) => {
 
   res.cookie("refreshToken", refreshToken, {
     ...cookieOptions,
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    maxAge: 24 * 60 * 60 * 1000, 
   });
 
   return { accessToken, refreshToken };
