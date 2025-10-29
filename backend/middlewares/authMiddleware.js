@@ -4,8 +4,8 @@ import asyncHandler from "./asyncHandler.js";
 
 // Check if the user is authenticated or not
 const authenticate = asyncHandler(async (req, res, next) => {
-  console.log("Cookies:", req.cookies); // Log cookies
-  console.log("Headers:", req.headers); // Log headers
+  console.log("Cookies:", req.cookies); 
+  console.log("Headers:", req.headers); 
   let token = req.cookies.jwt;
   if (!token) {
     console.log("No jwt cookie found");

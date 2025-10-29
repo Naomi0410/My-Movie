@@ -12,20 +12,21 @@ const createToken = (res, userId) => {
     expiresIn: "1d",
   });
 
-  const isProduction = process.env.NODE_ENV === "production";
+  // Always use secure + SameSite=None for cross-site cookies
+  const cookieOptions = {
+    httpOnly: true,
+    secure: true, // Required for SameSite=None
+    sameSite: "None", // Allows cross-origin cookies
+  };
 
   res.cookie("jwt", accessToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
-    maxAge: 30 * 60 * 1000,
+    ...cookieOptions,
+    maxAge: 30 * 60 * 1000, // 30 minutes
   });
 
   res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: isProduction,
-    sameSite: isProduction ? "strict" : "lax",
-    maxAge: 24 * 60 * 60 * 1000,
+    ...cookieOptions,
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
   });
 
   return { accessToken, refreshToken };
