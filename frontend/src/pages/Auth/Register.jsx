@@ -103,7 +103,7 @@ const Register = () => {
                   type="text"
                   id="firstname"
                   name="firstname"
-                  className="mt-1 p-2 w-full border rounded text-black"
+                  className="mt-1 p-2 w-full border rounded text-white"
                   placeholder="Enter First Name"
                   value={firstname}
                   onChange={handleChange}
@@ -119,7 +119,7 @@ const Register = () => {
                   type="text"
                   id="lastname"
                   name="lastname"
-                  className="mt-1 p-2 w-full border rounded text-black"
+                  className="mt-1 p-2 w-full border rounded text-white"
                   placeholder="Enter Last Name"
                   value={lastname}
                   onChange={handleChange}
@@ -137,7 +137,7 @@ const Register = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="mt-1 p-2 w-full border rounded text-black"
+                className="mt-1 p-2 w-full border rounded text-white"
                 placeholder="Enter Email"
                 value={email}
                 onChange={handleChange}
@@ -154,7 +154,7 @@ const Register = () => {
                 type="password"
                 id="password"
                 name="password"
-                className="mt-1 p-2 w-full border rounded text-black"
+                className="mt-1 p-2 w-full border rounded text-white"
                 placeholder="Enter Password"
                 value={password}
                 onChange={handleChange}
@@ -171,7 +171,7 @@ const Register = () => {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
-                className="mt-1 p-2 w-full border rounded text-black"
+                className="mt-1 p-2 w-full border rounded text-white"
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={handleChange}
