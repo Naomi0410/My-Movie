@@ -24,8 +24,8 @@ const fetchWatchProviders = async (movieId) => {
 // 🌍 Get TMDb movie list (popular, top-rated, etc.)
 const getTMDbMovieList = async (req, res) => {
   try {
-    const { type } = req.params; // e.g. "popular", "top_rated", "upcoming"
-    const totalPagesToFetch = 20; // You can increase this if needed
+    const { type } = req.params; 
+    const totalPagesToFetch = 20; 
     const allMovies = [];
 
     for (let page = 1; page <= totalPagesToFetch; page++) {
@@ -44,7 +44,7 @@ const getTMDbMovieList = async (req, res) => {
       allMovies.push(...enrichedPage);
     }
 
-    res.json(allMovies); // Send full array to frontend
+    res.json(allMovies);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
