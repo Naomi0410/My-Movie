@@ -4,20 +4,21 @@ import asyncHandler from "./asyncHandler.js";
 
 // Check if the user is authenticated or not
 const authenticate = asyncHandler(async (req, res, next) => {
-    console.log('Cookies:', req.cookies); // Log cookies
-  console.log('Headers:', req.headers); // Log headers
+  console.log("Cookies:", req.cookies); // Log cookies
+  console.log("Headers:", req.headers); // Log headers
   let token = req.cookies.jwt;
- if (!token) {
-    console.log('No jwt cookie found');
+  if (!token) {
+    console.log("No jwt cookie found");
   }
-  // Fallback to Authorization header 
+  // Fallback to Authorization header
   if (!token && req.headers.authorization?.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
   }
 
   if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_ACCESS_TOKEN);
+      const JWT_ACCESS_TOKEN = "supersecretkey";
+      const decoded = jwt.verify(token, JWT_ACCESS_TOKEN);
       req.user = await User.findById(decoded.userId).select("-password");
       next();
     } catch (error) {
@@ -29,7 +30,6 @@ const authenticate = asyncHandler(async (req, res, next) => {
     throw new Error("Not authorized, no token");
   }
 });
-
 
 // Check if the user is admin or not
 const authorizeAdmin = (req, res, next) => {
