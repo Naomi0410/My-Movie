@@ -75,7 +75,7 @@ const Search = () => {
                     item.poster_path || item.profile_path
                   }`}
                   alt={`Poster of ${item.title || item.name}`}
-                  className="rounded-lg mx-auto mb-2 w-full max-h-[300px] object-cover"
+                  className="rounded-lg mx-auto mb-2 w-full h-[200px] md:h-[300px] object-cover"
                 />
                 <p className="font-semibold text-sm">
                   {item.title || item.name}
