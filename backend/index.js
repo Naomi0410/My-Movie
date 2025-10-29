@@ -22,7 +22,7 @@ const app = express();
 
 // CORS setup
 app.use(cors({
-origin: ["http://localhost:5173", "https://my-movie-five-lake.vercel.app/"],
+origin: ["http://localhost:5173", "https://my-movie-five-lake.vercel.app"],
   credentials: true,               // allow cookies to be sent
 }));
 
