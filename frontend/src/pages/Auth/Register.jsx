@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
-import Loader from "../../component/Loader";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useRegisterMutation } from "../../redux/api/users";
 import { registerImg } from "../../assets";
@@ -190,8 +189,6 @@ const Register = () => {
             >
               {isLoading ? "Registering..." : "Register"}
             </motion.button>
-
-            {isLoading && <Loader />}
           </form>
 
           <p className="mt-4 text-sm">

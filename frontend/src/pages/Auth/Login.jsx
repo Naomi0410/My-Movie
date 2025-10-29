@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
-import Loader from "../../component/Loader";
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useLoginMutation } from "../../redux/api/users";
 import { loginImg } from "../../assets";
@@ -111,8 +110,6 @@ const Login = () => {
             >
               {isLoading ? "Signing In..." : "Sign In"}
             </motion.button>
-
-            {isLoading && <Loader />}
           </form>
 
           <p className="mt-4 text-sm">
