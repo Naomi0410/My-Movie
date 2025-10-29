@@ -21,14 +21,14 @@ const Search = () => {
       role="main"
       aria-label="Search Page"
     >
-      <h1 className="text-xl font-bold mb-4 bg-slate-700 text-white">Search</h1>
+      <h1 className="text-xl font-bold mb-4  text-white">Search</h1>
       <div className="flex gap-2 mb-2" role="search">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for movies, TV shows, or people..."
-          className="px-2 md:px-4 py-2 rounded-lg w-full text-black"
+          className="px-2 md:px-4 py-2 text-sm rounded-lg w-full bg-slate-700 text-white"
           aria-label="Search input"
         />
         <select
