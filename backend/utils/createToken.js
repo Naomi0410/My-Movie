@@ -1,32 +1,31 @@
 import jwt from "jsonwebtoken";
 
-const JWT_ACCESS_TOKEN = "supersecretkey";
-const JWT_REFRESH_TOKEN = "somethingsecret";
+const JWT_ACCESS_TOKEN = process.env.JWT_ACCESS_TOKEN;
+const JWT_REFRESH_TOKEN = process.env.JWT_REFRESH_TOKEN;
 
 const createToken = (res, userId) => {
   const accessToken = jwt.sign({ userId }, JWT_ACCESS_TOKEN, {
-    expiresIn: "30m",
+    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || "30m",
   });
 
   const refreshToken = jwt.sign({ userId }, JWT_REFRESH_TOKEN, {
-    expiresIn: "1d",
+    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRY || "1d",
   });
 
-  // Always use secure + SameSite=None for cross-site cookies
   const cookieOptions = {
     httpOnly: true,
-    secure: true, // Required for SameSite=None
-    sameSite: "None", // Allows cross-origin cookies
+    secure: true, 
+    sameSite: "None",
   };
 
   res.cookie("jwt", accessToken, {
     ...cookieOptions,
-    maxAge: 30 * 60 * 1000, // 30 minutes
+    maxAge: 30 * 60 * 1000, 
   });
 
   res.cookie("refreshToken", refreshToken, {
     ...cookieOptions,
-    maxAge: 24 * 60 * 60 * 1000, 
+    maxAge: 24 * 60 * 60 * 1000,
   });
 
   return { accessToken, refreshToken };

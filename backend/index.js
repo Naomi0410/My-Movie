@@ -1,8 +1,11 @@
+// ✅ Load and validate environment variables FIRST
+import "./utils/validateEnv.js";
+
 // Packages
 import express from "express";
 import cookieParser from "cookie-parser";
-import dotenv from "dotenv";
 import cors from "cors";
+import helmet from "helmet";
 
 // Files
 import connectDB from "./config/db.js";
@@ -14,24 +17,25 @@ import searchRoutes from "./routes/searchRoutes.js";
 import accountRoutes from "./routes/accountRoutes.js";
 import personRoutes from "./routes/personRoutes.js";
 
-// Configuration
-dotenv.config();
+// ✅ Connect to DB AFTER env is validated
 connectDB();
 
 const app = express();
 
-// CORS setup
+app.get("/", (req, res) => {
+  res.send("🎬 My-Movies API is running");
+});
+
+app.use(helmet());
 app.use(cors({
-origin: ["http://localhost:5173", "https://my-movie-five-lake.vercel.app"],
-  credentials: true,               // allow cookies to be sent
+  origin: ["http://localhost:5173", "https://my-movie-five-lake.vercel.app"],
+  credentials: true,
 }));
 
-// Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Routes
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/genre", genreRoutes);
 app.use("/api/v1/movies", moviesRoutes);
@@ -40,6 +44,10 @@ app.use("/api/v1/search", searchRoutes);
 app.use("/api/v1/account", accountRoutes);
 app.use("/api/v1/people", personRoutes);
 
-// Server
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Internal Server Error" });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server is running on port ${PORT}`));

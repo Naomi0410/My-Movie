@@ -10,6 +10,7 @@ import "slick-carousel/slick/slick-theme.css";
 import { useEffect, useState } from "react";
 import { Image } from "react-bootstrap";
 import { motion } from "framer-motion";
+import { defaultAvatar } from "../../assets";
 
 const getSlidesToShow = (width) => {
   if (width < 480) return 2;
@@ -25,7 +26,9 @@ const PeopleDetails = () => {
   const { data: personCredits } = useGetPersonCreditsQuery(id);
 
   const [width, setWidth] = useState(window.innerWidth);
-  const [slidesToShow, setSlidesToShow] = useState(getSlidesToShow(window.innerWidth));
+  const [slidesToShow, setSlidesToShow] = useState(
+    getSlidesToShow(window.innerWidth)
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -54,7 +57,11 @@ const PeopleDetails = () => {
   };
 
   return (
-    <div className="w-full mx-auto 2xl:container" role="main" aria-label="Person Details Page">
+    <div
+      className="w-full mx-auto 2xl:container"
+      role="main"
+      aria-label="Person Details Page"
+    >
       <motion.div
         className="flex bg-gradient-to-r from-teal-700 via-cyan-900 to-blue-950 justify-center items-center gap-8 py-8 flex-wrap"
         initial={{ opacity: 0 }}
@@ -64,9 +71,13 @@ const PeopleDetails = () => {
       >
         <div className="w-[80vw] md:w-2/6 lg:w-2/6 xl:w-80">
           <img
-            src={`https://image.tmdb.org/t/p/w500${personDetails.profile_path}`}
+            src={
+              personDetails.profile_path
+                ? `https://image.tmdb.org/t/p/w500${personDetails.profile_path}`
+                : defaultAvatar
+            }
+            loading="lazy"
             alt={personDetails.name}
-            className="rounded-lg w-full h-[70vh] md:w-[500px] xl:w-[300px] md:h-[400px] lg:h-[450px] object-center"
           />
         </div>
         <div className="w-full p-3 md:p-0 md:w-3/6 lg:w-3/6">
@@ -108,44 +119,48 @@ const PeopleDetails = () => {
           </p>
         </div>
       </motion.div>
-
       <div className="px-8 lg:px-12 mt-8 pb-20" aria-label="Known For Section">
         <h2 className="text-xl font-bold mb-4 text-white">Known For</h2>
-        <Slider key={width} {...settings}>
-          {personCredits.map((items) => (
-            <motion.div
-              key={items.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false, amount: 0.2 }}
-              transition={{ duration: 0.4 }}
-            >
-              <Link
-                to={
-                  items.type === "movie"
-                    ? `/movie/${items.tmdbId}`
-                    : `/tv/${items.tmdbId}`
-                }
-                className="text-center text-white px-2 block"
-                aria-label={`View ${items.title} as ${items.character}`}
+        {personCredits.length > 0 ? (
+          <Slider key={width} {...settings}>
+            {personCredits.map((items) => (
+              <motion.div
+                key={items.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{ duration: 0.4 }}
               >
-                <Image
-                  src={`https://image.tmdb.org/t/p/original/${items.posterPath}`}
-                  className="rounded-lg shadow-sm object-cover w-full max-h-[350px] max-w-xs mx-auto hover:opacity-80 transition-opacity duration-300"
-                />
-                <p className="text-white mt-2 font-bold text-center">
-                  {items.title}
-                </p>
-                <p className="text-orange-300 mt-0 font-semibold text-center">
-                  As:{" "}
-                  <span className="text-orange-400 font-normal italic">
-                    {items.character}
-                  </span>
-                </p>
-              </Link>
-            </motion.div>
-          ))}
-        </Slider>
+                <Link
+                  to={
+                    items.type === "movie"
+                      ? `/movie/${items.tmdbId}`
+                      : `/tv/${items.tmdbId}`
+                  }
+                  className="text-center text-white px-2 block"
+                  aria-label={`View ${items.title} as ${items.character}`}
+                >
+                  <Image
+                    src={`https://image.tmdb.org/t/p/w342/${items.posterPath}`}
+                    loading="lazy"
+                    className="rounded-lg shadow-sm object-cover w-full max-h-[350px] max-w-xs mx-auto hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <p className="text-white mt-2 font-bold text-center">
+                    {items.title}
+                  </p>
+                  <p className="text-orange-300 mt-0 font-semibold text-center">
+                    As:{" "}
+                    <span className="text-orange-400 font-normal italic">
+                      {items.character || "N/A"}
+                    </span>
+                  </p>
+                </Link>
+              </motion.div>
+            ))}
+          </Slider>
+        ) : (
+          <p className="text-white italic">No known credits available.</p>
+        )}
       </div>
     </div>
   );

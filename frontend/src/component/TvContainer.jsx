@@ -1,37 +1,44 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { FaHeart, FaRegHeart, FaBookmark, FaRegBookmark } from "react-icons/fa";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import {
   useAddToFavoritesMutation,
   useRemoveFromFavoritesMutation,
-  useGetFavoritesQuery,
   useAddToWatchlistMutation,
   useRemoveFromWatchlistMutation,
-  useGetWatchlistQuery,
 } from "../redux/api/account";
+import {
+  addFavorite,
+  removeFavorite,
+  addToWatchlist,
+  removeFromWatchlist,
+} from "../redux/features/account/accountSlice";
 import ModalView from "./ModalView";
 import { motion } from "framer-motion";
 
 const TvContainer = ({ tv }) => {
   const { poster_path, id, name, release_date, vote_average } = tv;
+  const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
+  const { favorites, watchlist } = useSelector((state) => state.account);
 
   const [favLoading, setFavLoading] = useState(false);
   const [watchLoading, setWatchLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const { data: favorites = [], refetch: refetchFavorites } = useGetFavoritesQuery();
-  const { data: watchlist = [], refetch: refetchWatchlist } = useGetWatchlistQuery();
+const [addToFavoritesMutation] = useAddToFavoritesMutation();
+const [removeFromFavoritesMutation] = useRemoveFromFavoritesMutation();
+const [addToWatchlistMutation] = useAddToWatchlistMutation();
+const [removeFromWatchlistMutation] = useRemoveFromWatchlistMutation();
 
-  const [addToFavorites] = useAddToFavoritesMutation();
-  const [removeFromFavorites] = useRemoveFromFavoritesMutation();
-  const [addToWatchlist] = useAddToWatchlistMutation();
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation();
-
-  const isFavorite = favorites.some(item => item.tmdbId === id && item.mediaType === "tv");
-  const isWatchlisted = watchlist.some(item => item.tmdbId === id && item.mediaType === "tv");
+  const isFavorite = favorites.some(
+    (item) => item.tmdbId === id && item.mediaType === "tv"
+  );
+  const isWatchlisted = watchlist.some(
+    (item) => item.tmdbId === id && item.mediaType === "tv"
+  );
 
   const truncateName = (text, maxLength = 15) =>
     text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
@@ -75,16 +82,20 @@ const TvContainer = ({ tv }) => {
       return;
     }
     setFavLoading(true);
+    const item = { tmdbId: id, mediaType: "tv" };
+
     try {
       if (isFavorite) {
-        await removeFromFavorites({ tmdbId: id, mediaType: "tv" }).unwrap();
+        dispatch(removeFavorite(item));
+        await removeFromFavoritesMutation(item).unwrap();
         toast.info("Removed from favorites");
       } else {
-        await addToFavorites({ tmdbId: id, mediaType: "tv" }).unwrap();
+        dispatch(addFavorite(item));
+        await addToFavoritesMutation(item).unwrap();
         toast.success("Added to favorites");
       }
-      await refetchFavorites();
     } catch (err) {
+      dispatch(isFavorite ? addFavorite(item) : removeFavorite(item)); // rollback
       toast.error(err?.data?.message || err?.error || "Favorite action failed");
     } finally {
       setFavLoading(false);
@@ -97,16 +108,20 @@ const TvContainer = ({ tv }) => {
       return;
     }
     setWatchLoading(true);
+    const item = { tmdbId: id, mediaType: "tv" };
+
     try {
       if (isWatchlisted) {
-        await removeFromWatchlist({ tmdbId: id, mediaType: "tv" }).unwrap();
+        dispatch(removeFromWatchlist(item));
+        await removeFromWatchlistMutation(item).unwrap();
         toast.info("Removed from watchlist");
       } else {
-        await addToWatchlist({ tmdbId: id, mediaType: "tv" }).unwrap();
+        dispatch(addToWatchlist(item));
+        await addToWatchlistMutation(item).unwrap();
         toast.success("Added to watchlist");
       }
-      await refetchWatchlist();
     } catch (err) {
+      dispatch(isWatchlisted ? addToWatchlist(item) : removeFromWatchlist(item)); // rollback
       toast.error(err?.data?.message || err?.error || "Watchlist action failed");
     } finally {
       setWatchLoading(false);
@@ -127,9 +142,10 @@ const TvContainer = ({ tv }) => {
         <Link to={`/tv/${id}`} aria-label={`View details for ${name}`}>
           <figure>
             <img
-              src={`https://image.tmdb.org/t/p/w200${poster_path}`}
+              src={`https://image.tmdb.org/t/p/w342${poster_path}`}
               alt={`Poster of ${name}`}
               className="rounded-sm shadow-sm object-center w-full border-b-2 border-black h-[150px] md:h-[180px] lg:h-[200px] max-w-xs mx-auto hover:opacity-80 transition-opacity duration-300"
+              loading="lazy"
             />
           </figure>
         </Link>
@@ -147,6 +163,7 @@ const TvContainer = ({ tv }) => {
           >
             {isFavorite ? <FaHeart size={16} /> : <FaRegHeart size={16} />}
           </motion.button>
+
           <motion.button
             onClick={handleToggleWatchlist}
             disabled={watchLoading}
@@ -162,7 +179,9 @@ const TvContainer = ({ tv }) => {
         </div>
 
         <div className="card-body p-1 md:p-2 leading-4">
-          <h2 className="card-title">{truncateName(name)}</h2>
+          <h2 className="card-title" title={name}>
+            {truncateName(name)}
+          </h2>
           <p>Release: {formatDate(release_date)}</p>
           <div className="flex items-center gap-1 md:gap-2">
             {renderStars(vote_average)}

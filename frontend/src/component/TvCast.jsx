@@ -4,6 +4,7 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { useEffect, useState } from "react";
+import { defaultAvatar } from "../assets";
 
 const getSlidesToShow = (width) => {
   if (width < 480) return 3;
@@ -22,7 +23,9 @@ const TvCast = () => {
   } = useGetTMDbTVCreditsQuery(id);
 
   const [width, setWidth] = useState(window.innerWidth);
-  const [slidesToShow, setSlidesToShow] = useState(getSlidesToShow(window.innerWidth));
+  const [slidesToShow, setSlidesToShow] = useState(
+    getSlidesToShow(window.innerWidth)
+  );
 
   useEffect(() => {
     const handleResize = () => {
@@ -47,7 +50,11 @@ const TvCast = () => {
 
   return (
     credits?.cast?.length > 0 && (
-      <div className="px-8 lg:px-12 mt-8" role="region" aria-label="TV Show Cast">
+      <div
+        className="px-8 lg:px-12 mt-8"
+        role="region"
+        aria-label="TV Show Cast"
+      >
         <h2 className="text-xl font-bold mb-4 text-white">Cast</h2>
         <Slider key={width} {...settings}>
           {credits.cast.map((actor) => (
@@ -58,8 +65,13 @@ const TvCast = () => {
               aria-label={`${actor.name} as ${actor.character}`}
             >
               <img
-                src={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+                src={
+                  actor.profile_path
+                    ? `https://image.tmdb.org/t/p/w200${actor.profile_path}`
+                    : defaultAvatar
+                }
                 alt={`Portrait of ${actor.name}`}
+                loading="lazy"
                 className="rounded-2xl mx-auto mb-2 w-[200px] h-auto max-h-[150px] object-cover"
               />
               <p className="font-semibold text-sm">{actor.name}</p>

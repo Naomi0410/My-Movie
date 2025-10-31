@@ -1,19 +1,9 @@
-import React, { useEffect, useState } from "react";
 import { useGetWatchlistQuery } from "../../redux/api/account";
 import MediaCard from "../../component/MediaCard";
 import { motion } from "framer-motion";
 
 const Watchlist = () => {
-  const { data: watchlistData = [] } = useGetWatchlistQuery();
-  const [watchlist, setWatchlist] = useState([]);
-
-  useEffect(() => {
-    setWatchlist(watchlistData);
-  }, [watchlistData]);
-
-  const handleRemove = (tmdbId) => {
-    setWatchlist((prev) => prev.filter((item) => item.tmdbId !== tmdbId));
-  };
+  const { data: watchlist = [] } = useGetWatchlistQuery();
 
   return (
     <motion.div
@@ -38,11 +28,7 @@ const Watchlist = () => {
               viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
             >
-              <MediaCard
-                item={item}
-                source="watchlist"
-                onRemove={handleRemove}
-              />
+              <MediaCard item={item} source="watchlist" />
             </motion.div>
           ))}
         </div>

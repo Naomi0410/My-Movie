@@ -68,7 +68,7 @@ const Register = () => {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-black text-white"
+      className="min-h-screen px-3 md:px-8 lg:px-12 w-full mx-auto 2xl:container flex items-center justify-center bg-black text-white"
       role="main"
       aria-label="Register Page"
     >
@@ -80,7 +80,7 @@ const Register = () => {
       >
         {/* Form Section */}
         <motion.div
-          className="flex-1 mb-8 md:mb-0 md:mr-8"
+          className="flex-1  mb-8 md:mb-0 md:mr-8"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
@@ -103,7 +103,7 @@ const Register = () => {
                   type="text"
                   id="firstname"
                   name="firstname"
-                  className="mt-1 p-2 w-full border rounded text-white"
+                  className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                   placeholder="Enter First Name"
                   value={firstname}
                   onChange={handleChange}
@@ -119,7 +119,7 @@ const Register = () => {
                   type="text"
                   id="lastname"
                   name="lastname"
-                  className="mt-1 p-2 w-full border rounded text-white"
+                  className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                   placeholder="Enter Last Name"
                   value={lastname}
                   onChange={handleChange}
@@ -137,7 +137,7 @@ const Register = () => {
                 type="email"
                 id="email"
                 name="email"
-                className="mt-1 p-2 w-full border rounded text-white"
+                className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                 placeholder="Enter Email"
                 value={email}
                 onChange={handleChange}
@@ -154,7 +154,7 @@ const Register = () => {
                 type="password"
                 id="password"
                 name="password"
-                className="mt-1 p-2 w-full border rounded text-white"
+                className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                 placeholder="Enter Password"
                 value={password}
                 onChange={handleChange}
@@ -171,7 +171,7 @@ const Register = () => {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
-                className="mt-1 p-2 w-full border rounded text-white"
+                className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                 placeholder="Confirm Password"
                 value={confirmPassword}
                 onChange={handleChange}
@@ -214,7 +214,7 @@ const Register = () => {
           <img
             src={registerImg}
             alt="Register visual"
-            className="rounded-lg h-[400px] w-[400px] md:h-[500px] lg:w-[500px] object-cover"
+            className="rounded-lg h-[400px] w-full md:h-[500px] object-cover"
           />
         </motion.div>
       </motion.section>

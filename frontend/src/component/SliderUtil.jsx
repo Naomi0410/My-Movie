@@ -5,7 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 import MovieCard from "./MovieCard";
 import TVCard from "./TVCard";
 import ModalView from "./ModalView";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import {
   useGetFavoritesQuery,
   useGetWatchlistQuery,
@@ -32,17 +32,15 @@ const getSlidesToShow = (width) => {
 
 const SliderUtil = ({ data }) => {
   const [width, setWidth] = useState(window.innerWidth);
-  const [slidesToShow, setSlidesToShow] = useState(getSlidesToShow(window.innerWidth));
+  const [slidesToShow, setSlidesToShow] = useState(
+    getSlidesToShow(window.innerWidth)
+  );
   const [showModal, setShowModal] = useState(false);
 
-  const { data: favorites = [], refetch: refetchFavorites } = useGetFavoritesQuery();
-  const { data: watchlist = [], refetch: refetchWatchlist } = useGetWatchlistQuery();
+  const { data: favorites = [] } = useGetFavoritesQuery();
+  const { data: watchlist = [] } = useGetWatchlistQuery();
 
   const handleRequireLogin = () => setShowModal(true);
-  const handleRefresh = () => {
-    refetchFavorites();
-    refetchWatchlist();
-  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -75,7 +73,9 @@ const SliderUtil = ({ data }) => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
             role="group"
-            aria-label={item.title ? `Movie: ${item.title}` : `TV Show: ${item.name}`}
+            aria-label={
+              item.title ? `Movie: ${item.title}` : `TV Show: ${item.name}`
+            }
           >
             {item.title ? (
               <MovieCard
@@ -83,7 +83,6 @@ const SliderUtil = ({ data }) => {
                 favorites={favorites}
                 watchlist={watchlist}
                 onRequireLogin={handleRequireLogin}
-                onRefresh={handleRefresh}
               />
             ) : (
               <TVCard
@@ -91,7 +90,6 @@ const SliderUtil = ({ data }) => {
                 favorites={favorites}
                 watchlist={watchlist}
                 onRequireLogin={handleRequireLogin}
-                onRefresh={handleRefresh}
               />
             )}
           </motion.div>

@@ -5,6 +5,7 @@ import Loader from "../component/Loader";
 import { Alert, Image } from "react-bootstrap";
 import SliderUtil from "../component/SliderUtil";
 import { motion } from "framer-motion";
+import { defaultBackdrop } from "../assets";
 
 const Home = () => {
   const {
@@ -49,7 +50,7 @@ const Home = () => {
   const isLoading = movieLoading || tvLoading;
 
   return (
-    <div className="w-full mx-auto 2xl:container" role="main">
+    <div className="w-full mx-auto 2xl:container pb-12" role="main">
       {hasError && (
         <Alert variant="danger" className="mt-4" role="alert">
           {movieError?.message || tvError?.message}
@@ -66,16 +67,22 @@ const Home = () => {
           aria-label="Featured Backdrop"
         >
           <Image
-            src={`https://image.tmdb.org/t/p/original/${currentBackdrop.backdrop_path}`}
-            alt={currentBackdrop.title || currentBackdrop.name}
+            src={
+              currentBackdrop.backdrop_path
+                ? `https://image.tmdb.org/t/p/w1280/${currentBackdrop.backdrop_path}`
+                : defaultBackdrop
+            }
             className="w-full max-h-[600px] object-cover"
+            loading="lazy"
           />
           <div className="hidden md:block bg-black/30 p-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-3 text-white text-center">
             <div className="w-full">
               <h1 className="text-2xl font-semibold">
                 {currentBackdrop.title || currentBackdrop.name}
               </h1>
-              <p className="mt-4">{currentBackdrop.overview}</p>
+              <p className="mt-4">
+                {currentBackdrop.overview || "No description available."}
+              </p>
             </div>
           </div>
         </motion.div>

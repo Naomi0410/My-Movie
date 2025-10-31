@@ -4,12 +4,26 @@ import { USERS_URL } from "../constants";
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // 🔐 Local Auth
+    refreshAccessToken: builder.mutation({
+      query: () => ({
+        url: `${USERS_URL}/refresh-token`,
+        method: "POST",
+      }),
+    }),
+
     login: builder.mutation({
       query: (data) => ({
         url: `${USERS_URL}/auth`,
         method: "POST",
-        body: data, 
+        body: data,
       }),
+      transformResponse: (response) => {
+        // Optionally shape the response
+        return response;
+      },
+      onError: (error) => {
+        console.error("Login failed:", error);
+      },
     }),
 
     register: builder.mutation({
@@ -25,6 +39,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         url: `${USERS_URL}/logout`,
         method: "POST",
       }),
+      invalidatesTags: ["User"],
     }),
 
     updateProfile: builder.mutation({
@@ -33,6 +48,26 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "PUT",
         body: data,
       }),
+      invalidatesTags: ["Profile"],
+      async onQueryStarted(data, { dispatch, queryFulfilled }) {
+        // Optimistically update the profile cache
+        const patchResult = dispatch(
+          userApiSlice.util.updateQueryData(
+            "getProfile",
+            undefined,
+            (draft) => {
+              Object.assign(draft, data);
+            }
+          )
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          console.error("Failed to update profile:", error);
+          patchResult.undo(); // Rollback if mutation fails
+        }
+      },
     }),
 
     getProfile: builder.query({
@@ -40,6 +75,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         url: `${USERS_URL}/profile`,
         method: "GET",
       }),
+      providesTags: ["Profile"],
     }),
 
     deleteAccount: builder.mutation({
@@ -47,6 +83,7 @@ export const userApiSlice = apiSlice.injectEndpoints({
         url: `${USERS_URL}/profile`,
         method: "DELETE",
       }),
+      invalidatesTags: ["User"],
     }),
 
     getUsers: builder.query({
@@ -97,7 +134,6 @@ export const userApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-
 export const {
   useLoginMutation,
   useRegisterMutation,
@@ -111,4 +147,5 @@ export const {
   useValidateTokenWithLoginMutation,
   useCreateSessionMutation,
   useDeleteSessionMutation,
+  useRefreshAccessTokenMutation,
 } = userApiSlice;

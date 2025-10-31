@@ -32,7 +32,7 @@ export default function EditProfile() {
   const onFormSubmit = async (data) => {
     try {
       const res = await updateProfile(data).unwrap();
-      toast.success(res.msg);
+      toast.success(res.msg || "Profile updated successfully");
       dispatch(setCredentials(res.updatedUser));
     } catch (err) {
       toast.error(err?.data?.message || "Update failed");
@@ -53,7 +53,6 @@ export default function EditProfile() {
         className="bg-white border rounded-xl shadow-sm p-5 space-y-4 w-full xl:w-4/5"
         aria-labelledby="edit-profile-title"
       >
-        {/* Title without staggered animation */}
         <h5 id="edit-profile-title" className="text-xl font-bold text-black">
           Edit Account
         </h5>
@@ -67,7 +66,7 @@ export default function EditProfile() {
             <input
               id="firstname"
               type="text"
-              {...register("firstname")}
+              {...register("firstname", { required: "Firstname is required" })}
               className="w-full border rounded-md px-2 py-2 bg-gray-200 text-gray-700"
               aria-invalid={errors.firstname ? "true" : "false"}
             />
@@ -82,7 +81,7 @@ export default function EditProfile() {
             <input
               id="lastname"
               type="text"
-              {...register("lastname")}
+              {...register("lastname", { required: "Lastname is required" })}
               className="w-full border rounded-md px-2 py-2 bg-gray-200 text-gray-700"
               aria-invalid={errors.lastname ? "true" : "false"}
             />
@@ -100,7 +99,13 @@ export default function EditProfile() {
           <input
             id="email"
             type="email"
-            {...register("email")}
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: "Invalid email format",
+              },
+            })}
             className="w-full border rounded-md px-2 py-2 bg-gray-200 text-gray-700"
             placeholder="john@email.com"
             aria-invalid={errors.email ? "true" : "false"}
@@ -118,7 +123,7 @@ export default function EditProfile() {
           <input
             id="currentPassword"
             type={reveal ? "text" : "password"}
-            {...register("currentPassword")}
+            {...register("currentPassword", { required: "Current password is required" })}
             className="w-full border rounded-md px-2 py-2 bg-gray-200 text-gray-700"
             placeholder="**********"
             aria-invalid={errors.currentPassword ? "true" : "false"}

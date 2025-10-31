@@ -12,13 +12,22 @@ const App = () => {
   const { userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
+    const expiration = localStorage.getItem("expirationTime");
+    if (expiration && new Date().getTime() > +expiration) {
+      toast.info("Session expired. Please log in again.");
+      dispatch(setCredentials(null));
+      navigate("/login");
+      return;
+    }
     if (!userInfo) return;
-
+    const timeout = expiration
+      ? +expiration - new Date().getTime()
+      : 30 * 60 * 1000;
     const logoutTimer = setTimeout(() => {
       toast.info("Session expired. Please log in again.");
       dispatch(setCredentials(null));
       navigate("/login");
-    }, 30 * 60 * 1000); // 15 minutes
+    }, timeout);
 
     return () => clearTimeout(logoutTimer);
   }, [userInfo, dispatch, navigate]);

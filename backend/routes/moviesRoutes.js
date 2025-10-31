@@ -16,18 +16,19 @@ import {
 
 // Middlewares
 import { authenticate } from "../middlewares/authMiddleware.js";
+import limitRequests from "../middlewares/rateLimit.js";
 
-// 🌍 TMDb Public Routes
-router.get("/tmdb/list/:type", getTMDbMovieList); // popular | top_rated | upcoming | now_playing
-router.get("/tmdb/details/:tmdbId", getTMDbMovieDetails);
-router.get("/tmdb/credits/:tmdbId", getTMDbMovieCredits);
-router.get("/tmdb/recommendations/:tmdbId", getTMDbRecommendations);
-router.get("/tmdb/release-dates/:tmdbId", getTMDbReleaseDates);
+// 🌍 TMDb Public Routes (rate-limited)
+router.get("/tmdb/list/:type", limitRequests, getTMDbMovieList); // popular | top_rated | upcoming | now_playing
+router.get("/tmdb/details/:tmdbId", limitRequests, getTMDbMovieDetails);
+router.get("/tmdb/credits/:tmdbId", limitRequests, getTMDbMovieCredits);
+router.get("/tmdb/recommendations/:tmdbId", limitRequests, getTMDbRecommendations);
+router.get("/tmdb/release-dates/:tmdbId", limitRequests, getTMDbReleaseDates);
 
-// ⭐ Local Review Routes
-router.post("/tmdb/:tmdbId/reviews", authenticate, movieReview);
-router.get("/tmdb/:tmdbId/reviews", getMovieReviews);
-router.get("/tmdb/:tmdbId/rating", getMovieRating);
-router.delete("/tmdb/reviews/delete", authenticate, deleteComment);
+// ⭐ Local Review Routes (rate-limited + auth where needed)
+router.post("/tmdb/:tmdbId/reviews", limitRequests, authenticate, movieReview);
+router.get("/tmdb/:tmdbId/reviews", limitRequests, getMovieReviews);
+router.get("/tmdb/:tmdbId/rating", limitRequests, getMovieRating);
+router.delete("/tmdb/reviews/delete", limitRequests, authenticate, deleteComment);
 
 export default router;

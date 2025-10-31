@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useLoginMutation } from "../../redux/api/users";
@@ -12,6 +13,7 @@ import { apiSlice } from "../../redux/api/apiSlice";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -74,7 +76,7 @@ const Login = () => {
               <input
                 type="email"
                 id="email"
-                className="mt-1 p-2 w-full border rounded text-white"
+                className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                 placeholder="Enter Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -84,14 +86,14 @@ const Login = () => {
               />
             </div>
 
-            <div>
+            <div className="relative">
               <label htmlFor="password" className="block text-sm font-medium">
                 Password
               </label>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
-                className="mt-1 p-2 w-full border rounded text-white"
+                className="mt-1 p-2 w-full border rounded text-white bg-gray-900"
                 placeholder="Enter Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -99,6 +101,13 @@ const Login = () => {
                 aria-required="true"
                 aria-label="Password"
               />
+              <span
+                className="absolute top-9 right-3 cursor-pointer text-gray-500"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+              </span>
             </div>
 
             <motion.button

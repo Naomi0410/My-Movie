@@ -3,7 +3,9 @@ import asyncHandler from "../middlewares/asyncHandler.js";
 import fetch from "node-fetch"; // or use axios
 
 
-const TMDB_API_KEY = "1bc6fa4a28441fb34163e0d25bec8c20";
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
+
 // 🧠 Helper: Get or create account for user
 const getOrCreateAccount = async (userId) => {
   let account = await Account.findOne({ user: userId });

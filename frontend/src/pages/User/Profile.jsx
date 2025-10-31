@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from "react-redux";
-import { useLocation, NavLink, Outlet } from "react-router-dom";
+import { useLocation, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { MdEdit } from "react-icons/md";
 import { useState } from "react";
 import { toast } from "react-toastify";
@@ -28,14 +28,16 @@ export default function Profile() {
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const [modalShow, setModalShow] = useState(false);
   const [deleteAccount, { isLoading: isDeleting }] = useDeleteAccountMutation();
 
   const handleDeleteAccount = async () => {
     try {
       await deleteAccount().unwrap();
-      toast.success("Account deleted successfully");
+      toast.success("Account deleted. Redirecting...");
       dispatch(logout());
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
       console.error("Delete error:", err);
       toast.error(err?.data?.message || "Failed to delete account");
@@ -152,29 +154,33 @@ export default function Profile() {
         show={modalShow}
         handleClose={() => setModalShow(false)}
         title="Delete account"
+        aria-labelledby="delete-title"
+        aria-describedby="delete-description"
       >
-        <p className="font-bold text-black">
+        <p id="delete-title" className="font-bold text-black">
           You are about to permanently delete your account.
         </p>
-        <p className="text-gray-400">
+        <p id="delete-description" className="text-gray-400">
           Deleting your account is permanent and cannot be reversed. Are you sure?
         </p>
         <div className="flex justify-end items-center gap-4 mt-4">
-          <button
+          <motion.button
             className="btn px-2 text-black border hover:border-teal-400"
             onClick={() => setModalShow(false)}
+            whileTap={{ scale: 0.95 }}
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             className={`btn ${
               isDeleting ? "btn-disabled" : "bg-red-500"
             } text-white px-2 hover:bg-red-600`}
             onClick={handleDeleteAccount}
             disabled={isDeleting}
+            whileTap={{ scale: 0.95 }}
           >
             {isDeleting ? "Deleting..." : "DELETE ACCOUNT"}
-          </button>
+          </motion.button>
         </div>
       </ModalView>
     </div>

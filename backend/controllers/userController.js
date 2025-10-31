@@ -1,11 +1,32 @@
 import User from "../models/User.js";
 import Account from "../models/Account.js";
-import bcrypt from "bcryptjs";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import createToken from "../utils/createToken.js";
 
-const TMDB_API_KEY = "1bc6fa4a28441fb34163e0d25bec8c20";
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+  const token = req.cookies.refreshToken;
+  if (!token) {
+    res.status(401);
+    throw new Error("No refresh token provided");
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_REFRESH_TOKEN);
+  const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_ACCESS_TOKEN, {
+    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || "30m",
+  });
+
+  res.cookie("jwt", accessToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
+    maxAge: 30 * 60 * 1000,
+  });
+
+  res.status(200).json({ accessToken });
+});
 
 // 📝 Register a new user
 const createUser = asyncHandler(async (req, res) => {
@@ -23,9 +44,12 @@ const createUser = asyncHandler(async (req, res) => {
   }
 
   const newUser = new User({ firstname, lastname, email, password });
-  await newUser.save();
 
-  createToken(res, newUser._id);
+  // Generate tokens and set cookies
+  const { refreshToken } = createToken(res, newUser._id);
+  newUser.refreshToken = refreshToken;
+
+  await newUser.save();
 
   res.status(201).json({
     _id: newUser._id,
@@ -36,6 +60,7 @@ const createUser = asyncHandler(async (req, res) => {
     createdAt: newUser.createdAt,
   });
 });
+
 
 // 🔐 Login user
 const loginUser = asyncHandler(async (req, res) => {
@@ -53,7 +78,9 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Invalid password");
   }
 
-  createToken(res, user._id);
+  const { refreshToken } = createToken(res, user._id);
+  user.refreshToken = refreshToken;
+  await user.save();
 
   res.status(200).json({
     _id: user._id,
@@ -67,11 +94,19 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // 🚪 Logout user
 const logoutCurrentUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (user) {
+    user.refreshToken = "";
+    await user.save();
+  }
   res.cookie("jwt", "", {
     httpOnly: true,
     expires: new Date(0),
   });
-
+  res.cookie("refreshToken", "", {
+    httpOnly: true,
+    expires: new Date(0),
+  });
   res.status(200).json({ message: "Logged out successfully" });
 });
 
@@ -246,6 +281,7 @@ const deleteSession = asyncHandler(async (req, res) => {
 });
 
 export {
+  refreshAccessToken,
   createUser,
   loginUser,
   logoutCurrentUser,

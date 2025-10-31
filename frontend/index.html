@@ -1,12 +1,69 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
+    <!-- Meta Basics -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>My-Movies | Discover Movies & TV Shows</title>
+    <meta
+      name="description"
+      content="Explore trending movies, top-rated TV shows, and your favorite actors all in one place."
+    />
+    <meta
+      name="keywords"
+      content="movies, tv shows, actors, film database, entertainment, streaming"
+    />
+    <meta name="creator" content="Alice Temitope Abiola" />
+    <meta name="contact" content="naomialicia15@gmail.com" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "My-Movies",
+        "url": "https://my-movie-five-lake.vercel.app",
+        "author": {
+          "@type": "Person",
+          "name": "Alice Temitope Abiola"
+        }
+      }
+    </script>
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="canonical" href="https://my-movie-five-lake.vercel.app" />
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="My-Movies" />
+    <meta
+      property="og:description"
+      content="Discover trending movies and TV shows with rich details and cast info."
+    />
+    <meta property="og:image" content="/preview.jpg" />
+    <meta property="og:url" content="https://my-movie-five-lake.vercel.app/" />
+    <meta property="og:type" content="website" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="My-Movies" />
+    <meta
+      name="twitter:description"
+      content="Your go-to app for movies, TV shows, and celebrity info."
+    />
+    <meta name="twitter:image" content="/preview.jpg" />
+
+    <!-- Fonts & Styles -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#0f172a" />
   </head>
-  <body>
+  <body class="bg-slate-900 text-white font-sans">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

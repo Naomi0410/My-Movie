@@ -3,6 +3,13 @@ import {
   useRemoveFromFavoritesMutation,
   useRemoveFromWatchlistMutation,
 } from "../redux/api/account";
+import {
+  removeFavorite,
+  addFavorite,
+  removeFromWatchlist,
+  addToWatchlist,
+} from "../redux/features/account/accountSlice";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { TbTrash } from "react-icons/tb";
 import { motion } from "framer-motion";
@@ -18,25 +25,36 @@ const MediaCard = ({ item, onRemove, source }) => {
     voteAverage,
   } = item;
 
+  const dispatch = useDispatch();
   const route = mediaType === "movie" ? `/movie/${tmdbId}` : `/tv/${tmdbId}`;
   const displayTitle = title || name;
 
-  const [removeFromFavorites] = useRemoveFromFavoritesMutation();
-  const [removeFromWatchlist] = useRemoveFromWatchlistMutation();
+const [removeFromFavoritesMutation] = useRemoveFromFavoritesMutation();
+const [removeFromWatchlistMutation] = useRemoveFromWatchlistMutation();
+
 
   const handleRemove = async () => {
-    try {
-      const payload = { tmdbId, mediaType };
+    const payload = { tmdbId, mediaType };
 
+    try {
       if (source === "favorites") {
-        await removeFromFavorites(payload).unwrap();
+        dispatch(removeFavorite(payload));
+        await removeFromFavoritesMutation(payload).unwrap();
       } else if (source === "watchlist") {
-        await removeFromWatchlist(payload).unwrap();
+        dispatch(removeFromWatchlist(payload));
+        await removeFromWatchlistMutation(payload).unwrap();
       }
 
       toast.success(`${displayTitle} removed from ${source}`);
       if (onRemove) onRemove(tmdbId);
     } catch (err) {
+      // Rollback
+      if (source === "favorites") {
+        dispatch(addFavorite(payload));
+      } else if (source === "watchlist") {
+        dispatch(addToWatchlist(payload));
+      }
+
       toast.error(`Failed to remove from ${source}`);
       console.error("Remove error:", err);
     }
@@ -73,6 +91,7 @@ const MediaCard = ({ item, onRemove, source }) => {
         <img
           src={`https://image.tmdb.org/t/p/w200${posterPath}`}
           alt={displayTitle}
+          loading="lazy"
           className="w-[100px] h-[150px] object-cover rounded-xl"
         />
       </Link>

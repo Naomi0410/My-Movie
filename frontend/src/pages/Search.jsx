@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useSearchTMDbQuery } from "../redux/api/search";
-import { Link } from "react-router-dom"; // ✅ Use react-router-dom for Link
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Loader from "../component/Loader";
 
@@ -44,7 +44,9 @@ const Search = () => {
       </div>
 
       {query.length === 0 ? (
-        <p className="text-white text-xs md:text-sm">Start typing to search...</p>
+        <p className="text-white text-xs md:text-sm">
+          Start typing to search...
+        </p>
       ) : isLoading ? (
         <div className="flex justify-center items-center h-[200px]">
           <Loader />
@@ -75,6 +77,7 @@ const Search = () => {
                     item.poster_path || item.profile_path
                   }`}
                   alt={`Poster of ${item.title || item.name}`}
+                  loading="lazy"
                   className="rounded-lg mx-auto mb-2 w-full h-[200px] md:h-[300px] object-cover"
                 />
                 <p className="font-semibold text-sm">
@@ -88,7 +91,9 @@ const Search = () => {
           ))}
         </div>
       ) : (
-        <p className="text-white">No results found.</p>
+        <p className="text-white">
+          No results found for <span className="font-bold">"{query}"</span>.
+        </p>
       )}
     </div>
   );

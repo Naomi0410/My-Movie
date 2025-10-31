@@ -1,5 +1,5 @@
-const TMDB_API_KEY = "1bc6fa4a28441fb34163e0d25bec8c20";
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 
 const searchTMDb = async (req, res) => {
   try {

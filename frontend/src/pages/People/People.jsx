@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useGetPopularPeopleQuery } from "../../redux/api/people";
-import { Link } from "react-router-dom"; // ✅ Corrected import
+import { Link } from "react-router-dom";
 import Loader from "../../component/Loader";
 import { motion } from "framer-motion";
+import { defaultAvatar } from "../../assets";
 
 const getProductsPerPage = () => {
   const width = window.innerWidth;
@@ -77,9 +78,10 @@ const People = () => {
                   src={
                     person.profile_path
                       ? `https://image.tmdb.org/t/p/w300${person.profile_path}`
-                      : "/default-avatar.jpg"
+                      : defaultAvatar
                   }
                   alt={person.name}
+                  loading="lazy"
                   className="rounded-lg w-full h-[150px] md:h-[200px] object-cover"
                 />
                 <p className="mt-2 font-medium">{person.name}</p>

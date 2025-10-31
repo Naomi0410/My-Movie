@@ -13,34 +13,38 @@ import {
   validateTokenWithLogin,
   createSession,
   deleteSession,
-  deleteUserAccount
+  deleteUserAccount,
+  refreshAccessToken
 } from "../controllers/userController.js";
 
 // Middlewares
-import { authenticate, authorizeAdmin } from "../middlewares/authMiddleware.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
+import limitRequests from "../middlewares/rateLimit.js";
 
 const router = express.Router();
 
 // 📝 Local Auth Routes
 router.route("/")
-  .post(createUser) // Register
-  .get(authenticate, authorizeAdmin, getAllUsers); // Admin-only: Get all users
+  .post(limitRequests, createUser) // Register (rate-limited)
+  .get(authenticate,  getAllUsers); // Admin-only: Get all users
 
-router.post("/auth", loginUser); // Login
-router.post("/logout", logoutCurrentUser); // Logout
+router.post("/refresh-token", refreshAccessToken);
+
+
+router.post("/auth", limitRequests, loginUser); // Login (rate-limited)
+router.post("/logout", authenticate, logoutCurrentUser); // Logout (protected)
 
 router.route("/profile")
   .get(authenticate, getCurrentUserProfile) // Get profile
   .put(authenticate, updateCurrentUserProfile) // Update profile
   .delete(authenticate, deleteUserAccount); // Delete profile
 
-// 🎬 TMDb Auth Routes
-router.get("/tmdb/guest-session", createGuestSession); // Guest session
-router.get("/tmdb/request-token", createRequestToken); // Request token
-router.post("/tmdb/validate-login", validateTokenWithLogin); // Validate token with login
-router.post("/tmdb/create-session", createSession); // Create session
-router.delete("/tmdb/delete-session", deleteSession); // Delete session
-
+// 🎬 TMDb Auth Routes (rate-limited)
+router.get("/tmdb/guest-session", limitRequests, createGuestSession);
+router.get("/tmdb/request-token", limitRequests, createRequestToken);
+router.post("/tmdb/validate-login", limitRequests, validateTokenWithLogin);
+router.post("/tmdb/create-session", limitRequests, createSession);
+router.delete("/tmdb/delete-session", limitRequests, deleteSession);
 
 
 export default router;

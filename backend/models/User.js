@@ -5,15 +5,15 @@ const userSchema = new mongoose.Schema(
   {
     firstname: {
       type: String,
-      required: [true, "Username is required"],
+      required: [true, "First name is required"],
       trim: true,
     },
     lastname: {
       type: String,
-      required: [true, "Username is required"],
+      required: [true, "Last name is required"],
       trim: true,
     },
-    
+
     email: {
       type: String,
       required: [true, "Email is required"],
@@ -33,9 +33,22 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    refreshToken: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );
+
+// 🔍 Index for faster email lookups and uniqueness enforcement
+userSchema.index({ email: 1 });
+
+// 🧠 Virtual full name
+userSchema.virtual("fullName").get(function () {
+  return `${this.firstname} ${this.lastname}`;
+});
 
 // 🔒 Hash password before saving
 userSchema.pre("save", async function (next) {

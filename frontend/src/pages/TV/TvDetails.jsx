@@ -6,20 +6,19 @@ import {
 import { useParams } from "react-router-dom";
 import Loader from "../../component/Loader";
 import { FaStar, FaRegStar } from "react-icons/fa";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import SliderUtil from "../../component/SliderUtil";
 import TvCast from "../../component/TvCast";
 import { motion } from "framer-motion";
+import { useLayoutEffect } from "react";
 
 const TvDetails = () => {
   const { id } = useParams();
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [id]);
+useLayoutEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, [id]);
+
 
   const { data, error, isLoading } = useGetTMDbTVDetailsQuery(id);
   const { data: recommendation } = useGetTMDbTVRecommendationsQuery(id);
@@ -42,7 +41,7 @@ const TvDetails = () => {
 
   return (
     <div
-      className="w-full mx-auto 2xl:container"
+      className="w-full mx-auto 2xl:container pb-12"
       role="main"
       aria-label="TV Show Details Page"
     >
@@ -66,16 +65,18 @@ const TvDetails = () => {
         >
           <div className="relative">
             <img
-              src={`https://image.tmdb.org/t/p/original/${data.backdrop_path}`}
+              src={`https://image.tmdb.org/t/p/w1280/${data.backdrop_path}`}
               alt={`Backdrop of ${data.name}`}
+              loading="lazy"
               className="w-full min-h-[600px] object-cover filter brightness-50"
             />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full px-5">
               <div className="flex justify-center gap-8 items-center text-white">
                 <div className="w-full md:w-[30%]">
                   <img
-                    src={`https://image.tmdb.org/t/p/original/${data.poster_path}`}
+                    src={`https://image.tmdb.org/t/p/w500/${data.poster_path}`}
                     alt={`Poster of ${data.name}`}
+                    loading="lazy"
                     className="w-full h-[400px] md:w-[400px] md:h-[300px] lg:h-[500px] rounded-lg shadow-sm"
                   />
                   <div className="lg:hidden mt-4 text-center">
@@ -139,6 +140,7 @@ const TvDetails = () => {
                           href={data.homepage}
                           target="_blank"
                           rel="noopener noreferrer"
+                          aria-label={`Visit homepage for ${data.name}`}
                           className="bg-cyan-500 font-bold text-white px-3 py-1 rounded-lg hover:bg-cyan-600 transition"
                         >
                           Watch Now
@@ -205,6 +207,7 @@ const TvDetails = () => {
                     href={data.homepage}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={`Visit homepage for ${data.name}`}
                     className="bg-cyan-500 font-bold text-white px-3 py-1 rounded-lg hover:bg-cyan-600 transition"
                   >
                     Watch Now

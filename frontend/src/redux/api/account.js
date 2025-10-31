@@ -12,7 +12,21 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Favorites"],
+      async onQueryStarted(item, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          accountApiSlice.util.updateQueryData("getFavorites", undefined, (draft) => {
+            draft.push(item);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          console.error("Failed to add to favorites:", error);
+          patchResult.undo();
+        }
+      },
     }),
+
     removeFromFavorites: builder.mutation({
       query: (item) => ({
         url: `${ACCOUNT_URL}/favorites`,
@@ -21,7 +35,21 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Favorites"],
+      async onQueryStarted(item, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          accountApiSlice.util.updateQueryData("getFavorites", undefined, (draft) => {
+            return draft.filter((fav) => fav.id !== item.id);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          console.error("Failed to remove from favorites:", error);
+          patchResult.undo();
+        }
+      },
     }),
+
     getFavorites: builder.query({
       query: () => ({
         url: `${ACCOUNT_URL}/favorites`,
@@ -40,7 +68,21 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Watchlist"],
+      async onQueryStarted(item, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          accountApiSlice.util.updateQueryData("getWatchlist", undefined, (draft) => {
+            draft.push(item);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          console.error("Failed to add to watchlist:", error);
+          patchResult.undo();
+        }
+      },
     }),
+
     removeFromWatchlist: builder.mutation({
       query: (item) => ({
         url: `${ACCOUNT_URL}/watchlist`,
@@ -49,7 +91,21 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         credentials: "include",
       }),
       invalidatesTags: ["Watchlist"],
+      async onQueryStarted(item, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          accountApiSlice.util.updateQueryData("getWatchlist", undefined, (draft) => {
+            return draft.filter((w) => w.id !== item.id);
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          console.error("Failed to remove from watchlist:", error);
+          patchResult.undo();
+        }
+      },
     }),
+
     getWatchlist: builder.query({
       query: () => ({
         url: `${ACCOUNT_URL}/watchlist`,

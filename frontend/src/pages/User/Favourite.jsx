@@ -1,19 +1,9 @@
 import { useGetFavoritesQuery } from "../../redux/api/account";
 import MediaCard from "../../component/MediaCard";
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 const Favourite = () => {
-  const { data: favoritesData = [] } = useGetFavoritesQuery();
-  const [favorites, setFavorites] = useState([]);
-
-  useEffect(() => {
-    setFavorites(favoritesData);
-  }, [favoritesData]);
-
-  const handleRemove = (tmdbId) => {
-    setFavorites((prev) => prev.filter((item) => item.tmdbId !== tmdbId));
-  };
+  const { data: favorites = [] } = useGetFavoritesQuery();
 
   return (
     <motion.div
@@ -38,11 +28,7 @@ const Favourite = () => {
               viewport={{ once: false, amount: 0.2 }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
             >
-              <MediaCard
-                item={item}
-                source="favorites"
-                onRemove={handleRemove}
-              />
+              <MediaCard item={item} source="favorites" />
             </motion.div>
           ))}
         </div>
