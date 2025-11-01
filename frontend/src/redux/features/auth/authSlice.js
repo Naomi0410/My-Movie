@@ -46,10 +46,8 @@ const authSlice = createSlice({
       state.expirationTime = expirationTime ?? state.expirationTime;
 
       if (isBrowser) {
-        if (userInfo !== null) {
+        if (userInfo && typeof userInfo === "object") {
           localStorage.setItem("userInfo", JSON.stringify(userInfo));
-        } else {
-          localStorage.removeItem("userInfo");
         }
 
         accessToken
