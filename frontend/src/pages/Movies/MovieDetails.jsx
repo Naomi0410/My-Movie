@@ -22,6 +22,22 @@ const MovieDetails = () => {
   const { data, error, isLoading } = useGetTMDbMovieDetailsQuery(id);
   const { data: recommendation } = useGetTMDbRecommendationsQuery(id);
 
+  // Convert RTK Query error object to a safe string for rendering
+  const errorMessage = useMemo(() => {
+    if (!error) return null;
+    if (typeof error === "string") return error;
+    if (error?.data) {
+      if (typeof error.data === "string") return error.data;
+      if (error.data?.message) return error.data.message;
+      try {
+        return JSON.stringify(error.data);
+      } catch {
+        return String(error.data);
+      }
+    }
+    return error?.error || JSON.stringify(error);
+  }, [error]);
+
   const results = useMemo(() => recommendation || [], [recommendation]);
 
   const renderStars = (rating) => {
@@ -44,9 +60,9 @@ const MovieDetails = () => {
       role="main"
       aria-label="Movie Details Page"
     >
-      {error && (
+      {errorMessage && (
         <Alert variant="danger" className="mt-4" role="alert">
-          {error}
+          {errorMessage}
         </Alert>
       )}
       {isLoading && (
