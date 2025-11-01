@@ -11,7 +11,7 @@ const Loader = () => {
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="rounded-full h-16 w-16 border-t-4 border-teal-500 border-opacity-50"
+        className="rounded-full h-16 w-16 border-t-4 bg-cyan-700 border-opacity-50"
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
       />

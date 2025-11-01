@@ -65,7 +65,7 @@ const TvDetails = () => {
         </Alert>
       )}
       {isLoading && (
-        <div className="flex justify-center items-center h-[300px] w-full">
+        <div className="flex justify-center items-center h-[screen] w-full">
           <Loader />
         </div>
       )}

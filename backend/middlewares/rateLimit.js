@@ -6,7 +6,6 @@ export const limitRequests = rateLimit({
   message: "Too many requests from this IP, please try again after 15 minutes",
   statusCode: 429,
   headers: true, // Return rate limit info in headers
-  // Customize headers if needed
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 });
