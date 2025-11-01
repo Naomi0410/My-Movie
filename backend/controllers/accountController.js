@@ -18,9 +18,18 @@ const getOrCreateAccount = async (userId) => {
 
 // 🌐 Helper: Fetch TMDB details
 const fetchTMDBDetails = async (tmdbId, mediaType) => {
-  const url = `https://api.themoviedb.org/3/${mediaType}/${tmdbId}?api_key=${TMDB_API_KEY}`;
+  if (!TMDB_API_KEY || !TMDB_BASE_URL) {
+    throw new Error("TMDB configuration missing on server");
+  }
+  const url = `${TMDB_BASE_URL}/${mediaType}/${tmdbId}?api_key=${TMDB_API_KEY}`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error("Failed to fetch TMDB details");
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    const msg = text || `TMDB returned ${res.status}`;
+    const err = new Error(`Failed to fetch TMDB details: ${msg}`);
+    err.status = res.status;
+    throw err;
+  }
   return await res.json();
 };
 

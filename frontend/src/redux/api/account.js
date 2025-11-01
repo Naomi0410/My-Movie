@@ -9,12 +9,12 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         url: `${ACCOUNT_URL}/favorites`,
         method: "POST",
         body: item,
-        credentials: "include",
       }),
       invalidatesTags: ["Favorites"],
       async onQueryStarted(item, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           accountApiSlice.util.updateQueryData("getFavorites", undefined, (draft) => {
+            if (!Array.isArray(draft)) return;
             draft.push(item);
           })
         );
@@ -32,13 +32,18 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         url: `${ACCOUNT_URL}/favorites`,
         method: "DELETE",
         body: item,
-        credentials: "include",
       }),
       invalidatesTags: ["Favorites"],
       async onQueryStarted(item, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           accountApiSlice.util.updateQueryData("getFavorites", undefined, (draft) => {
-            return draft.filter((fav) => fav.id !== item.id);
+            if (!Array.isArray(draft)) return;
+            const idx = draft.findIndex(
+              (fav) =>
+                String(fav.tmdbId ?? fav.id) === String(item.tmdbId ?? item.id) &&
+                (fav.mediaType ?? "") === (item.mediaType ?? "")
+            );
+            if (idx !== -1) draft.splice(idx, 1);
           })
         );
         try {
@@ -53,7 +58,6 @@ export const accountApiSlice = apiSlice.injectEndpoints({
     getFavorites: builder.query({
       query: () => ({
         url: `${ACCOUNT_URL}/favorites`,
-        credentials: "include",
       }),
       providesTags: ["Favorites"],
       refetchOnMountOrArgChange: true,
@@ -65,12 +69,12 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         url: `${ACCOUNT_URL}/watchlist`,
         method: "POST",
         body: item,
-        credentials: "include",
       }),
       invalidatesTags: ["Watchlist"],
       async onQueryStarted(item, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           accountApiSlice.util.updateQueryData("getWatchlist", undefined, (draft) => {
+            if (!Array.isArray(draft)) return;
             draft.push(item);
           })
         );
@@ -88,13 +92,18 @@ export const accountApiSlice = apiSlice.injectEndpoints({
         url: `${ACCOUNT_URL}/watchlist`,
         method: "DELETE",
         body: item,
-        credentials: "include",
       }),
       invalidatesTags: ["Watchlist"],
       async onQueryStarted(item, { dispatch, queryFulfilled }) {
         const patchResult = dispatch(
           accountApiSlice.util.updateQueryData("getWatchlist", undefined, (draft) => {
-            return draft.filter((w) => w.id !== item.id);
+            if (!Array.isArray(draft)) return;
+            const idx = draft.findIndex(
+              (w) =>
+                String(w.tmdbId ?? w.id) === String(item.tmdbId ?? item.id) &&
+                (w.mediaType ?? "") === (item.mediaType ?? "")
+            );
+            if (idx !== -1) draft.splice(idx, 1);
           })
         );
         try {
@@ -109,7 +118,6 @@ export const accountApiSlice = apiSlice.injectEndpoints({
     getWatchlist: builder.query({
       query: () => ({
         url: `${ACCOUNT_URL}/watchlist`,
-        credentials: "include",
       }),
       providesTags: ["Watchlist"],
       refetchOnMountOrArgChange: true,

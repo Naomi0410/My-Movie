@@ -1,13 +1,15 @@
 import { apiSlice } from "./apiSlice";
 import { USERS_URL } from "../constants";
+import { setCredentials } from "../features/auth/authSlice";
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // 🔐 Local Auth
     refreshAccessToken: builder.mutation({
-      query: () => ({
+      query: (refreshToken) => ({
         url: `${USERS_URL}/refresh-token`,
         method: "POST",
+        body: refreshToken ? { refreshToken } : undefined,
       }),
     }),
 
@@ -17,12 +19,25 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      transformResponse: (response) => {
-        // Optionally shape the response
-        return response;
-      },
-      onError: (error) => {
-        console.error("Login failed:", error);
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          const { accessToken, refreshToken, ...userData } = data;
+          // Store tokens and user data
+          dispatch(
+            setCredentials({
+              accessToken,
+              refreshToken,
+              userInfo: userData,
+            })
+          );
+          // Backup to localStorage
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("userInfo", JSON.stringify(userData));
+        } catch (error) {
+          console.error("Login failed:", error);
+        }
       },
     }),
 
@@ -32,6 +47,26 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          const { accessToken, refreshToken, ...userData } = data;
+          // Store tokens and user data after registration
+          dispatch(
+            setCredentials({
+              accessToken,
+              refreshToken,
+              userInfo: userData,
+            })
+          );
+          // Backup to localStorage
+          localStorage.setItem("accessToken", accessToken);
+          localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("userInfo", JSON.stringify(userData));
+        } catch (error) {
+          console.error("Registration failed:", error);
+        }
+      },
     }),
 
     logout: builder.mutation({
@@ -40,6 +75,24 @@ export const userApiSlice = apiSlice.injectEndpoints({
         method: "POST",
       }),
       invalidatesTags: ["User"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Clear credentials and localStorage
+          dispatch(
+            setCredentials({
+              accessToken: null,
+              refreshToken: null,
+              userInfo: null,
+            })
+          );
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("userInfo");
+        } catch (error) {
+          console.error("Logout failed:", error);
+        }
+      },
     }),
 
     updateProfile: builder.mutation({

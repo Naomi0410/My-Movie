@@ -2,30 +2,46 @@ import User from "../models/User.js";
 import Account from "../models/Account.js";
 import asyncHandler from "../middlewares/asyncHandler.js";
 import createToken from "../utils/createToken.js";
+import jwt from "jsonwebtoken";
 
 const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const token = req.cookies.refreshToken;
+  // Accept refresh token from body or Authorization header
+  const authHeader = req.headers.authorization;
+  const tokenFromHeader =
+    authHeader && authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
+  const token = req.body?.refreshToken || tokenFromHeader;
+
   if (!token) {
     res.status(401);
     throw new Error("No refresh token provided");
   }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_REFRESH_TOKEN);
+    const user = await User.findById(decoded.userId);
 
-  const decoded = jwt.verify(token, process.env.JWT_REFRESH_TOKEN);
-  const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_ACCESS_TOKEN, {
-    expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || "30m",
-  });
+    if (!user || !user.isValidRefreshToken(token)) {
+      res.status(401);
+      throw new Error("Invalid refresh token");
+    }
 
-  res.cookie("jwt", accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-    maxAge: 30 * 60 * 1000,
-  });
+    const accessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.JWT_ACCESS_TOKEN,
+      {
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRY || "30m",
+      }
+    );
 
-  res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken });
+  } catch (err) {
+    res.status(401);
+    throw new Error("Invalid or expired refresh token");
+  }
 });
 
 // 📝 Register a new user
@@ -44,11 +60,9 @@ const createUser = asyncHandler(async (req, res) => {
   }
 
   const newUser = new User({ firstname, lastname, email, password });
+  const { accessToken, refreshToken } = createToken(newUser._id);
 
-  // Generate tokens and set cookies
-  const { refreshToken } = createToken(res, newUser._id);
-  newUser.refreshToken = refreshToken;
-
+  newUser.setRefreshToken(refreshToken);
   await newUser.save();
 
   res.status(201).json({
@@ -58,9 +72,10 @@ const createUser = asyncHandler(async (req, res) => {
     email: newUser.email,
     isAdmin: newUser.isAdmin,
     createdAt: newUser.createdAt,
+    accessToken,
+    refreshToken,
   });
 });
-
 
 // 🔐 Login user
 const loginUser = asyncHandler(async (req, res) => {
@@ -78,8 +93,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new Error("Invalid password");
   }
 
-  const { refreshToken } = createToken(res, user._id);
-  user.refreshToken = refreshToken;
+  const { accessToken, refreshToken } = createToken(user._id);
+  user.setRefreshToken(refreshToken);
   await user.save();
 
   res.status(200).json({
@@ -89,6 +104,8 @@ const loginUser = asyncHandler(async (req, res) => {
     email: user.email,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
+    accessToken,
+    refreshToken,
   });
 });
 
@@ -96,29 +113,26 @@ const loginUser = asyncHandler(async (req, res) => {
 const logoutCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   if (user) {
-    user.refreshToken = "";
+    user.clearRefreshToken();
     await user.save();
   }
-  res.cookie("jwt", "", {
-    httpOnly: true,
-    expires: new Date(0),
-  });
-  res.cookie("refreshToken", "", {
-    httpOnly: true,
-    expires: new Date(0),
-  });
   res.status(200).json({ message: "Logged out successfully" });
 });
 
 // 👥 Get all users (admin only)
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({}).select("-password");
+  const users = await User.find({})
+    .select("-password -refreshToken -refreshTokenExpiry")
+    .sort("-lastLogin");
   res.status(200).json(users);
 });
 
 // 🙋‍♂️ Get current user's profile
 const getCurrentUserProfile = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).select("-password");
+  const user = await User.findById(req.user._id).select(
+    "-password -refreshToken -refreshTokenExpiry"
+  );
+
   if (!user) {
     res.status(404);
     throw new Error("User not found");
@@ -161,24 +175,16 @@ const deleteUserAccount = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("User not found");
   }
-  // Delete associated account
+
   const deletedAccount = await Account.findOneAndDelete({ user: user._id });
   if (deletedAccount) {
     console.log("Deleted account for user:", user._id);
-  } else {
-    console.log("No account found for user:", user._id);
   }
-  // Delete user
+
   await user.deleteOne();
-  console.log("Deleted user:", user._id);
-  // Clear JWT cookie
-  res.cookie("jwt", "", {
-    httpOnly: true,
-    expires: new Date(0),
-  });
   res
     .status(200)
-    .json({ msg: "User and associated account deleted successfully" });
+    .json({ message: "User and associated account deleted successfully" });
 });
 
 // 🎬 TMDb: Create guest session

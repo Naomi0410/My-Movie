@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoIosMenu } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { useLogoutMutation } from "../redux/api/users";
 import { logout } from "../redux/features/auth/authSlice";
+import { apiSlice } from "../redux/api/apiSlice";
 import ModalView from "./ModalView";
 import { motion, AnimatePresence } from "framer-motion";
+
 
 const navLinks = [
   { path: "/movies", name: "Movies" },
@@ -21,12 +23,18 @@ const Drawer = () => {
 
   const { userInfo } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [logoutApiCall] = useLogoutMutation();
 
   const confirmLogout = async () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
+      // reset RTK Query cache and close UI
+      dispatch(apiSlice.util.resetApiState());
+      setOpen(false);
+      setShowLogoutModal(false);
+      navigate("/");
       window.location.href = "/";
     } catch (error) {
       console.error("Logout failed:", error);

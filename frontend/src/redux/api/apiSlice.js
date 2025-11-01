@@ -4,25 +4,73 @@ import { logout, setCredentials } from "../features/auth/authSlice";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: BASE_URL,
-  credentials: "include", // sends cookies
+  prepareHeaders: (headers, { getState }) => {
+    // Get token from localStorage as fallback
+    const token =
+      getState().auth?.accessToken || localStorage.getItem("accessToken");
+    if (token) {
+      headers.set("authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
 });
 
 const baseQueryWithReauth = async (args, api, extraOptions) => {
   let result = await baseQuery(args, api, extraOptions);
 
   if (result?.error?.status === 401) {
-    const refreshResult = await baseQuery(
-      "/users/refresh-token",
-      api,
-      extraOptions
-    );
+    console.log("Token expired, attempting refresh...");
 
-    if (refreshResult?.data) {
-      api.dispatch(setCredentials(refreshResult.data)); // ✅ update Redux
-      result = await baseQuery(args, api, extraOptions); // ✅ retry original request
-    } else {
-      console.warn("Refresh token failed:", refreshResult?.error);
+    // Try getting refresh token from state and localStorage
+    const refreshToken =
+      api.getState().auth?.refreshToken || localStorage.getItem("refreshToken");
+    if (!refreshToken) {
+      console.log("No refresh token available");
       api.dispatch(logout());
+      return result;
+    }
+
+    try {
+      const refreshResult = await baseQuery(
+        {
+          url: "/users/refresh-token",
+          method: "POST",
+          body: { refreshToken },
+        },
+        api,
+        extraOptions
+      );
+
+      if (refreshResult?.data) {
+        const { accessToken, refreshToken: newRefreshToken } =
+          refreshResult.data;
+
+        // Update tokens in localStorage
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", newRefreshToken);
+
+        // Update Redux state
+        api.dispatch(
+          setCredentials({
+            accessToken,
+            refreshToken: newRefreshToken,
+            userInfo: api.getState().auth.userInfo,
+          })
+        );
+
+        // Retry original request with new token
+        result = await baseQuery(args, api, extraOptions);
+      } else {
+        console.log("Refresh token failed");
+        api.dispatch(logout());
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+      }
+    } catch (error) {
+      console.error("Error during token refresh:", error);
+      api.dispatch(logout());
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     }
   }
 
@@ -30,6 +78,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
 };
 
 export const apiSlice = createApi({
+  reducerPath: "api",
   baseQuery: baseQueryWithReauth,
   tagTypes: ["User", "Profile", "Session", "Favorites", "Watchlist"],
   endpoints: () => ({}),

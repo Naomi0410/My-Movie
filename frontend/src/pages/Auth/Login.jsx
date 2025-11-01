@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
-
 import { setCredentials } from "../../redux/features/auth/authSlice";
 import { useLoginMutation } from "../../redux/api/users";
 import { loginImg } from "../../assets";
@@ -33,7 +32,10 @@ const Login = () => {
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
-      const res = await login({ email, password }).unwrap();
+      const res = await login({
+        email: email.trim().toLowerCase(),
+        password,
+      }).unwrap();
       dispatch(setCredentials(res));
       dispatch(apiSlice.util.resetApiState());
       navigate(redirect);
@@ -101,18 +103,22 @@ const Login = () => {
                 aria-required="true"
                 aria-label="Password"
               />
-              <span
+              <button
+                type="button"
                 className="absolute top-9 right-3 cursor-pointer text-gray-500"
                 onClick={() => setShowPassword((prev) => !prev)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+                title={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
-              </span>
+              </button>
             </div>
 
             <motion.button
               type="submit"
               disabled={isLoading}
+              aria-busy={isLoading}
               className="bg-rose-800 hover:bg-rose-900 text-white px-4 py-2 rounded w-full"
               whileTap={{ scale: 0.97 }}
               aria-label="Sign In"

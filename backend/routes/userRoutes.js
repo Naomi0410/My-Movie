@@ -28,11 +28,11 @@ router.route("/")
   .post(limitRequests, createUser) // Register (rate-limited)
   .get(authenticate,  getAllUsers); // Admin-only: Get all users
 
-router.post("/refresh-token", refreshAccessToken);
+router.post("/refresh-token", limitRequests, refreshAccessToken);
 
 
 router.post("/auth", limitRequests, loginUser); // Login (rate-limited)
-router.post("/logout", authenticate, logoutCurrentUser); // Logout (protected)
+router.post("/logout", authenticate, limitRequests, logoutCurrentUser); // Logout (protected)
 
 router.route("/profile")
   .get(authenticate, getCurrentUserProfile) // Get profile

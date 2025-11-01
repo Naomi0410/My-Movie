@@ -3,7 +3,7 @@ import "./utils/validateEnv.js";
 
 // Packages
 import express from "express";
-import cookieParser from "cookie-parser";
+// import cookieParser from "cookie-parser";
 import cors from "cors";
 import helmet from "helmet";
 
@@ -27,14 +27,16 @@ app.get("/", (req, res) => {
 });
 
 app.use(helmet());
-app.use(cors({
-  origin: ["http://localhost:5173", "https://my-movie-five-lake.vercel.app"],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://my-movie-five-lake.vercel.app"],
+    credentials: false,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
 
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/genre", genreRoutes);
@@ -46,7 +48,8 @@ app.use("/api/v1/people", personRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ message: "Internal Server Error" });
+  const status = err.status || res.statusCode || 500;
+  res.status(status).json({ message: err.message || "Internal Server Error" });
 });
 
 const PORT = process.env.PORT || 3000;

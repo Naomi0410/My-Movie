@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { SiThemoviedatabase } from "react-icons/si";
 import { useLogoutMutation } from "../../redux/api/users";
@@ -7,6 +7,8 @@ import { logout } from "../../redux/features/auth/authSlice";
 import Drawer from "../../component/Drawer";
 import ModalView from "../../component/ModalView";
 import { motion } from "framer-motion";
+import { apiSlice } from "../../redux/api/apiSlice";
+import { logo } from "../../assets";
 
 const navLinks = [
   { path: "movies", name: "Movies" },
@@ -17,6 +19,7 @@ const navLinks = [
 
 const Navigation = () => {
   const { userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -30,9 +33,17 @@ const Navigation = () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
-      window.location.href = "/";
+      // reset RTK Query cache and close UI
+      dispatch(apiSlice.util.resetApiState());
+      setDropdownOpen(false);
+      setShowLogoutModal(false);
+      // Force reload to clear all state
+      window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
+      // Force logout anyway if API call fails
+      dispatch(logout());
+      window.location.href = "/login";
     }
   };
 
@@ -58,9 +69,9 @@ const Navigation = () => {
       <div className="w-full mx-auto 2xl:container">
         {/* Desktop Navigation */}
         <section className="hidden md:flex py-3 px-8 lg:px-12 justify-between items-center">
-          <NavLink to="/" aria-label="Home">
-            <SiThemoviedatabase color="black" size="40px" />
-          </NavLink>
+          <Link to="/" aria-label="Home">
+            <img src={logo} alt="MyMovies logo" className="h-10 w-auto" />
+          </Link>
 
           <nav
             className="hidden md:flex gap-3 items-center"
@@ -183,9 +194,9 @@ const Navigation = () => {
 
         {/* Mobile Navigation */}
         <section className="flex md:hidden py-3 px-3 justify-between items-center">
-          <NavLink to="/" aria-label="Home">
-            <SiThemoviedatabase color="black" size="30px" />
-          </NavLink>
+          <Link to="/" aria-label="Home">
+            <img src={logo} alt="MyMovies logo" className="h-6 w-auto" />
+          </Link>
           <Drawer />
         </section>
       </div>

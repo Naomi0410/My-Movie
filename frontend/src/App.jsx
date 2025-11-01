@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Navigation from "./pages/Auth/Navigation";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setCredentials } from "./redux/features/auth/authSlice";
+import { logout } from "./redux/features/auth/authSlice";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ const App = () => {
     const expiration = localStorage.getItem("expirationTime");
     if (expiration && new Date().getTime() > +expiration) {
       toast.info("Session expired. Please log in again.");
-      dispatch(setCredentials(null));
+      dispatch(logout());
       navigate("/login");
       return;
     }
@@ -25,7 +25,7 @@ const App = () => {
       : 30 * 60 * 1000;
     const logoutTimer = setTimeout(() => {
       toast.info("Session expired. Please log in again.");
-      dispatch(setCredentials(null));
+      dispatch(logout());
       navigate("/login");
     }, timeout);
 
@@ -44,3 +44,4 @@ const App = () => {
 };
 
 export default App;
+

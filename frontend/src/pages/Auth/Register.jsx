@@ -51,18 +51,25 @@ const Register = () => {
     }
 
     try {
-      const res = await register({
-        firstname,
-        lastname,
-        email,
+      const payload = {
+        firstname: firstname.trim(),
+        lastname: lastname.trim(),
+        email: email.trim().toLowerCase(),
         password,
-      }).unwrap();
+      };
+
+      const res = await register(payload).unwrap();
       dispatch(setCredentials(res));
       dispatch(apiSlice.util.resetApiState());
       toast.success("Registration successful");
       navigate(redirect);
     } catch (err) {
-      toast.error(err?.data?.message || "Registration failed");
+      const message =
+        err?.data?.message ||
+        err?.error ||
+        err?.message ||
+        "Registration failed";
+      toast.error(message);
     }
   };
 
@@ -96,7 +103,10 @@ const Register = () => {
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div>
-                <label htmlFor="firstname" className="block text-sm font-medium">
+                <label
+                  htmlFor="firstname"
+                  className="block text-sm font-medium"
+                >
                   First Name
                 </label>
                 <input
@@ -164,7 +174,10 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium"
+              >
                 Confirm Password
               </label>
               <input
