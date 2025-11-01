@@ -15,13 +15,27 @@ import { useLayoutEffect } from "react";
 const TvDetails = () => {
   const { id } = useParams();
 
-useLayoutEffect(() => {
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}, [id]);
-
+  useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [id]);
 
   const { data, error, isLoading } = useGetTMDbTVDetailsQuery(id);
   const { data: recommendation } = useGetTMDbTVRecommendationsQuery(id);
+
+  const errorMessage = useMemo(() => {
+    if (!error) return null;
+    if (typeof error === "string") return error;
+    if (error?.data) {
+      if (typeof error.data === "string") return error.data;
+      if (error.data?.message) return error.data.message;
+      try {
+        return JSON.stringify(error.data);
+      } catch {
+        return String(error.data);
+      }
+    }
+    return error?.error || JSON.stringify(error);
+  }, [error]);
 
   const results = useMemo(() => recommendation || [], [recommendation]);
 
@@ -45,9 +59,9 @@ useLayoutEffect(() => {
       role="main"
       aria-label="TV Show Details Page"
     >
-      {error && (
+     {errorMessage && (
         <Alert variant="danger" className="mt-4" role="alert">
-          {error}
+          {errorMessage}
         </Alert>
       )}
       {isLoading && (
